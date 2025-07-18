@@ -23,8 +23,6 @@ export default function DashboardPage() {
   const [messageText, setMessageText] = useState('');
   const [senderNames, setSenderNames] = useState([]);
   const [selectedSender, setSelectedSender] = useState('');
-  const [lockedUrl, setLockedUrl] = useState('');
-  const [customUrl, setCustomUrl] = useState('');
   const [alert, setAlert] = useState({ message: '', type: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [pinInput, setPinInput] = useState('');
@@ -44,10 +42,9 @@ export default function DashboardPage() {
 
   const fetchInitialData = async () => {
     try {
-      const [campaignsRes, sendersRes, urlRes, creditRes, profileRes] = await Promise.all([
+      const [campaignsRes, sendersRes, creditRes, profileRes] = await Promise.all([
         fetch('/api/get-campaigns'),
         fetch('/api/get-senders'),
-        fetch('/api/get-locked-url'),
         fetch('/api/get-credit'),
         fetch('/api/get-profile'),
       ]);
@@ -60,9 +57,6 @@ export default function DashboardPage() {
         setSenderNames(sendersData.senders);
         setSelectedSender(sendersData.senders[0]);
       }
-
-      const urlData = await urlRes.json();
-      if (urlData.success) setLockedUrl(urlData.lockedUrl);
 
       const creditData = await creditRes.json();
       if (creditData.success) setCredit(creditData.credit);
@@ -84,7 +78,6 @@ export default function DashboardPage() {
     else if (field === 'recipientsText') setRecipientsText(value);
     else if (field === 'messageText') setMessageText(value);
     else if (field === 'selectedSender') setSelectedSender(value);
-    else if (field === 'customUrl') setCustomUrl(value);
   };
 
   // Open PIN modal instead of sending directly
@@ -121,8 +114,7 @@ export default function DashboardPage() {
           recipients,
           messageText,
           senderName: selectedSender,
-          pin: pinInput,
-          url: customUrl.trim() ? customUrl.trim() : lockedUrl,
+          pin: pinInput
         }),
       });
       const result = await response.json();
@@ -131,7 +123,6 @@ export default function DashboardPage() {
         setCampaignName('');
         setRecipientsText('');
         setMessageText('');
-        setCustomUrl('');
         fetchInitialData();
       } else {
         setAlert({ message: result.message, type: 'error' });
@@ -242,9 +233,7 @@ export default function DashboardPage() {
                 recipientsText={recipientsText}
                 messageText={messageText}
                 selectedSender={selectedSender}
-                customUrl={customUrl}
                 senderNames={senderNames}
-                lockedUrl={lockedUrl}
                 onChange={handleFormChange}
                 onSubmit={handleFormSubmit}
                 isLoading={isLoading}

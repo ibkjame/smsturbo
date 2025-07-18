@@ -5,9 +5,7 @@ const CampaignForm = ({
   recipientsText,
   messageText,
   selectedSender,
-  customUrl,
   senderNames = [],
-  lockedUrl = '',
   onChange,
   onSubmit,
   isLoading,
@@ -78,13 +76,13 @@ const CampaignForm = ({
         />
       </div>
       <div>
-        <label htmlFor="messageText" className={`block mb-2 font-semibold text-lg ${current.label}`}>ข้อความ</label>
+        <label htmlFor="messageText" className={`block mb-2 font-semibold text-lg ${current.label}`}>ข้อความ (สามารถใส่ลิงก์ได้เลย)</label>
         <textarea
           id="messageText"
           className={`w-full p-3 rounded-lg min-h-[80px] ${current.input}`}
           value={messageText}
           onChange={e => onChange('messageText', e.target.value)}
-          placeholder="กรอกข้อความที่จะส่ง"
+          placeholder="กรอกข้อความที่จะส่ง (ใส่ลิงก์ได้เลย)"
           required
         />
       </div>
@@ -101,16 +99,6 @@ const CampaignForm = ({
             <option value="" disabled>-- เลือกชื่อผู้ส่ง --</option>
             {senderNames.map(name => <option key={name} value={name}>{name}</option>)}
           </select>
-        </div>
-        <div className="flex-1">
-          <label htmlFor="customUrl" className={`block mb-2 font-semibold text-lg ${current.label}`}>Custom URL (ถ้ามี)</label>
-          <input
-            id="customUrl"
-            className={`w-full p-3 rounded-lg ${current.input}`}
-            value={customUrl}
-            onChange={e => onChange('customUrl', e.target.value)}
-            placeholder="กรอกลิ้งค์เอง (ถ้าไม่กรอกจะใช้ลิ้งค์ล็อค)"
-          />
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mt-6">

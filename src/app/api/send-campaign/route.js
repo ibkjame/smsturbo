@@ -23,7 +23,7 @@ async function callIsmsApi(data) {
 
 export async function POST(req) {
     try {
-        const { name, recipients, messageText, senderName, pin, url } = await req.json();
+        const { name, recipients, messageText, senderName, pin } = await req.json();
 
         // ตรวจสอบคำต้องห้ามก่อนส่ง
         const foundSpam = spamWords.filter(word => messageText.includes(word));
@@ -36,51 +36,30 @@ export async function POST(req) {
         if (!correctPin || pin !== correctPin) {
             return NextResponse.json({ success: false, message: 'PIN ไม่ถูกต้อง' }, { status: 403 });
         }
-        
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        const lockedUrl = process.env.LOCKED_TRACKING_URL;
-        if (!lockedUrl) throw new Error("LOCKED_TRACKING_URL is not configured.");
-        
-        const originalUrl = url || lockedUrl;
-        const fullMessage = `${messageText} ${originalUrl}`;
 
-        // 2. สร้างแคมเปญในฐานข้อมูล
+        // 2. สร้างแคมเปญในฐานข้อมูล (ใช้ messageText ตรง ๆ)
         const { data: campaignData, error: campaignError } = await supabase
             .from('campaigns')
-            .insert([{ name, message_template: fullMessage, original_url: originalUrl, total_recipients: recipients.length }])
+            .insert([{ name, message_template: messageText, original_url: null, total_recipients: recipients.length }])
             .select()
             .single();
         if (campaignError) throw campaignError;
         const campaignId = campaignData.id;
 
-        // --- ส่วนที่แก้ไขใหม่ทั้งหมด ---
-        // 3. เรียกใช้ฟังก์ชันใน Supabase เพื่อ "จอง" ID เริ่มต้น
-        let { data: nextId, error: rpcError } = await supabase.rpc('get_next_bk_id');
-        if (rpcError) throw rpcError;
-        
-        let currentId = nextId;
         let successCount = 0;
-        
-        // 4. วนลูปเพื่อสร้างข้อความและส่ง SMS
+        // 3. วนลูปเพื่อสร้างข้อความและส่ง SMS
         for (const recipient of recipients) {
-            const trackingId = `bk${currentId}`;
-            const trackingUrl = `${baseUrl}/${trackingId}`;
-            const finalMessage = `${messageText} ${trackingUrl}`;
-
-            // บันทึกข้อความลงฐานข้อมูล
+            // บันทึกข้อความลงฐานข้อมูล (ไม่มี trackingId/URL)
             const { data: msgData, error: msgInsertError } = await supabase
                 .from('sms_messages')
-                .insert([{ campaign_id: campaignId, recipient, message: finalMessage, tracking_id: trackingId, original_url: originalUrl }])
+                .insert([{ campaign_id: campaignId, recipient, message: messageText, tracking_id: null, original_url: null }])
                 .select().single();
-            
             if (msgInsertError) {
                 console.error("DB Insert Error:", msgInsertError);
-                continue; 
+                continue;
             }
-
             // ส่ง SMS ผ่าน API
-            const apiResult = await callIsmsApi({ recipient, sender_name: senderName, message: finalMessage });
-
+            const apiResult = await callIsmsApi({ recipient, sender_name: senderName, message: messageText });
             if (apiResult.status === 'success') {
                 successCount++;
                 await supabase.from('sms_messages').update({
@@ -92,13 +71,8 @@ export async function POST(req) {
             } else {
                 await supabase.from('sms_messages').update({ status_code: 2 }).eq('id', msgData.id);
             }
-
-            currentId++; // เพิ่มค่า ID สำหรับเบอร์ถัดไป
         }
-        // --- สิ้นสุดส่วนที่แก้ไข ---
-
         return NextResponse.json({ success: true, message: `สร้างแคมเปญสำเร็จ ส่งไป ${successCount} จาก ${recipients.length} เบอร์` });
-
     } catch (error) {
         console.error("Send Campaign Error:", error);
         return NextResponse.json({ success: false, message: 'เกิดข้อผิดพลาด: ' + error.message }, { status: 500 });
