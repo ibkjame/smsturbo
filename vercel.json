@@ -1,0 +1,34 @@
+
+{
+  "rewrites": [
+    {
+      "source": "/th",
+      "destination": "/th.html"
+    },
+    {
+      "source": "/th-th",
+      "destination": "/th-th.html"
+    },
+      {
+      "source": "/7s",
+      "destination": "/7s.html"
+    },
+    {
+      "source": "/1s",
+      "destination": "/"
+    },
+     {
+      "source": "/168",
+      "destination": "/168.html"
+    },
+     {
+      "source": "/mssg",
+      "destination": "/mssg.html"
+    },
+     {
+      "source": "/movie",
+      "destination": "/movie.html"
+    }
+  ]
+  
+}

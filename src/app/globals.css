@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+:root {
+  --background: #005f1d;
+  --foreground: #171717;
+
+  /* SMS Dashboard Custom Theme - Updated for Softer Background */
+  --color-bg-main: #086d2a; /* Soft gray-green */
+  --color-bg-card: #075e07; /* Very light gray-green */
+  --color-bg-card-alt: #0a7925; /* Soft green-gray */
+  --color-primary: #4ADE80;
+  --color-primary-dark: #22C55E;
+  --color-border: #A7F3D0;
+  --color-text-main: #222F3E;
+  --color-text-secondary: #64748B;
+  --color-error: #EF4444;
+  --color-success: #22C55E;
+  --color-warning: #FACC15;
+}
+
+/* SMS Dashboard Dark Theme */
+:root {
+  --color-bg-main: #181F23; /* dark gray-blue */
+  --color-bg-card: #232A2F; /* card dark */
+  --color-bg-card-alt: #1B2227; /* alt card dark */
+  --color-primary: #4ADE80; /* green accent */
+  --color-primary-dark: #22C55E; /* green accent dark */
+  --color-border: #334D3C; /* muted green border */
+  --color-text-main: #F3F6F4; /* light text */
+  --color-text-secondary: #A7F3D0; /* greenish secondary */
+  --color-error: #EF4444;
+  --color-success: #22C55E;
+  --color-warning: #FACC15;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #094b3c;
+  }
+}
+
+body {
+  background: var(--color-bg-main);
+  color: var(--color-text-main);
+  font-family: 'Inter', 'Prompt', sans-serif;
+}
+
+.card, .dashboard-box {
+  background: var(--color-bg-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px 0 rgba(34, 197, 94, 0.08);
+}
+
+.header {
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+.button-main {
+  background: var(--color-primary);
+  color: #181F23;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.button-main:hover {
+  background: var(--color-primary-dark);
+  color: #181F23;
+}
+
+.button-secondary {
+  background: var(--color-bg-card-alt);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+}
+
+.input, .select, .textarea {
+  background: var(--color-bg-card-alt);
+  color: var(--color-text-main);
+  border: 2.5px solid var(--color-primary-dark);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 1rem;
+  box-shadow: 0 0 0 2px var(--color-primary-dark) inset;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary) inset;
+  outline: none;
+}
+
+.alert-success {
+  background: var(--color-success);
+  color: #181F23;
+}
+
+.alert-error {
+  background: var(--color-error);
+  color: #181F23;
+}
+
+.alert-warning {
+  background: var(--color-warning);
+  color: #181F23;
+}
+
+/* Spinner Animation */
+@keyframes spinner-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinner {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  border: 8px solid rgba(255,255,255,0.2);
+  border-top: 8px solid #fff;
+  border-radius: 50%;
+  animation: spinner-rotate 1s linear infinite;
+  box-shadow: 0 0 24px 4px rgba(0,0,0,0.15);
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.spinner-text {
+  margin-top: 16px;
+  font-size: 1.1rem;
+  color: #fff;
+  text-align: center;
+  animation: fadeIn 0.7s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
