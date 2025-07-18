@@ -8,7 +8,7 @@ const nextConfig = {
       // กฎสำหรับหน้าหลัก (ถ้ามี)
       {
         source: '/',
-        destination: '/index.html',
+        destination: '/dashboard',
       },
       // *** กฎที่แก้ไขใหม่สำหรับแพทเทิร์น 'bk' ***
       // เมื่อมีคนเข้ามาที่ /bk ตามด้วยตัวเลข (เช่น /bk1, /bk123)
