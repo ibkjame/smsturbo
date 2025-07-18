@@ -39,12 +39,12 @@ export default function SimpleLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-sm p-8 bg-gray-900/50 backdrop-blur-xl rounded-2xl shadow-lg border border-lime-400/30">
-        <h1 className="text-3xl font-bold text-lime-400 text-center mb-2">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-200 p-4">
+      <div className="w-full max-w-sm p-8 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-blue-200">
+        <h1 className="text-3xl font-bold text-blue-700 text-center mb-2">
           SMS Dashboard
         </h1>
-        <p className="text-center text-gray-400 mb-8">กรุณาใส่รหัสผ่านเพื่อเข้าสู่ระบบ</p>
+        <p className="text-center text-blue-400 mb-8">กรุณาใส่รหัสผ่านเพื่อเข้าสู่ระบบ</p>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -57,7 +57,7 @@ export default function SimpleLoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-black border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-lime-400 focus:outline-none transition text-gray-300 placeholder-gray-500"
+              className="w-full p-3 bg-blue-50 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none transition text-blue-700 placeholder-blue-400"
               placeholder="รหัสผ่าน"
             />
           </div>
@@ -68,7 +68,7 @@ export default function SimpleLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full inline-flex justify-center items-center gap-2 bg-lime-400 text-black font-bold px-8 py-3 rounded-lg hover:bg-lime-300 disabled:bg-gray-600 transition-all transform hover:scale-105"
+              className="w-full inline-flex justify-center items-center gap-2 bg-blue-600 text-white font-bold px-8 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-all transform hover:scale-105"
             >
               {isLoading ? 'กำลังตรวจสอบ...' : 'เข้าสู่ระบบ'}
             </button>

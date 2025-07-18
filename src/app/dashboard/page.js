@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import CampaignHistory from './components/CampaignHistory';
-import CampaignForm from './components/CampaignForm';
+import CampaignForm from './components/CampaignForm';    
+import UserInfo from './components/UserInfo';
+import WalletInfo from './components/WalletInfo';
+import StatsBar from './components/StatsBar';
+import ConfirmationModal from './components/ConfirmationModal';
 
 // Icons
 const SendIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>;
@@ -26,36 +30,26 @@ export default function DashboardPage() {
   const [pinInput, setPinInput] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [credit, setCredit] = useState(null);
-  const [activeTab, setActiveTab] = useState('create'); // 'create' หรือ 'history'
-  const [theme, setTheme] = useState('purple');
-  const [showThemePicker, setShowThemePicker] = useState(false);
-  // เพิ่มธีมใหม่และสุ่มสี
-  const themeMap = {
-    purple: { bg: 'bg-purple-950', card: 'bg-green-900/90 border-green-400/40', text: 'text-purple-200', btn: 'bg-purple-400 text-black', count: 'text-purple-100', label: 'text-purple-300' },
-    green: { bg: 'bg-green-950', card: 'bg-purple-900/90 border-purple-400/40', text: 'text-green-200', btn: 'bg-green-400 text-black', count: 'text-green-100', label: 'text-green-300' },
-    blue: { bg: 'bg-blue-950', card: 'bg-orange-900/90 border-orange-400/40', text: 'text-blue-200', btn: 'bg-blue-400 text-black', count: 'text-blue-100', label: 'text-blue-300' },
-    dark: { bg: 'bg-black', card: 'bg-lime-900/90 border-lime-400/40', text: 'text-gray-200', btn: 'bg-gray-700 text-white', count: 'text-gray-300', label: 'text-gray-400' },
-    orange: { bg: 'bg-orange-950', card: 'bg-blue-900/90 border-blue-400/40', text: 'text-orange-200', btn: 'bg-orange-400 text-black', count: 'text-orange-100', label: 'text-orange-300' },
-    pink: { bg: 'bg-pink-950', card: 'bg-yellow-900/90 border-yellow-400/40', text: 'text-pink-200', btn: 'bg-pink-400 text-black', count: 'text-pink-100', label: 'text-pink-300' },
-    yellow: { bg: 'bg-yellow-950', card: 'bg-pink-900/90 border-pink-400/40', text: 'text-yellow-200', btn: 'bg-yellow-400 text-black', count: 'text-yellow-100', label: 'text-yellow-300' },
-    teal: { bg: 'bg-teal-950', card: 'bg-red-900/90 border-red-400/40', text: 'text-teal-200', btn: 'bg-teal-400 text-black', count: 'text-teal-100', label: 'text-teal-300' },
-    red: { bg: 'bg-red-950', card: 'bg-teal-900/90 border-teal-400/40', text: 'text-red-200', btn: 'bg-red-400 text-black', count: 'text-red-100', label: 'text-red-300' },
+  const [activeTab, setActiveTab] = useState('create');
+  const [profile, setProfile] = useState(null);
+  const [formError, setFormError] = useState('');
+  const current = {
+    bg: '',
+    card: 'bg-white border border-orange-100 shadow',
+    text: 'text-gray-900',
+    btn: 'bg-orange-500 text-white hover:bg-orange-600',
+    count: 'text-orange-700',
+    label: 'text-orange-600',
   };
-  const themeKeys = Object.keys(themeMap);
-  const randomTheme = () => {
-    const idx = Math.floor(Math.random() * themeKeys.length);
-    setTheme(themeKeys[idx]);
-    setShowThemePicker(false);
-  };
-  const current = themeMap[theme];
 
   const fetchInitialData = async () => {
     try {
-      const [campaignsRes, sendersRes, urlRes, creditRes] = await Promise.all([
+      const [campaignsRes, sendersRes, urlRes, creditRes, profileRes] = await Promise.all([
         fetch('/api/get-campaigns'),
         fetch('/api/get-senders'),
         fetch('/api/get-locked-url'),
-        fetch('/api/get-credit')
+        fetch('/api/get-credit'),
+        fetch('/api/get-profile'),
       ]);
       
       const campaignsData = await campaignsRes.json();
@@ -73,12 +67,36 @@ export default function DashboardPage() {
       const creditData = await creditRes.json();
       if (creditData.success) setCredit(creditData.credit);
 
+      const profileData = await profileRes.json();
+      if (profileData.success) setProfile(profileData.profile);
+
     } catch (error) {
       console.error("Failed to fetch initial data:", error);
     }
   };
 
   useEffect(() => { fetchInitialData(); }, []);
+
+  // Unified onChange handler for CampaignForm
+  const handleFormChange = (field, value) => {
+    setFormError('');
+    if (field === 'campaignName') setCampaignName(value);
+    else if (field === 'recipientsText') setRecipientsText(value);
+    else if (field === 'messageText') setMessageText(value);
+    else if (field === 'selectedSender') setSelectedSender(value);
+    else if (field === 'customUrl') setCustomUrl(value);
+  };
+
+  // Open PIN modal instead of sending directly
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (!campaignName || !recipientsText || !messageText || !selectedSender) {
+      setFormError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+      return;
+    }
+    setPinInput('');
+    setIsModalOpen(true);
+  };
 
   const handleOpenModal = (event) => {
     event.preventDefault();
@@ -98,7 +116,14 @@ export default function DashboardPage() {
       const response = await fetch('/api/send-campaign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: campaignName, recipients, messageText, senderName: selectedSender, pin: pinInput, customUrl }),
+        body: JSON.stringify({
+          name: campaignName,
+          recipients,
+          messageText,
+          senderName: selectedSender,
+          pin: pinInput,
+          url: customUrl.trim() ? customUrl.trim() : lockedUrl,
+        }),
       });
       const result = await response.json();
       if (result.success) {
@@ -176,102 +201,70 @@ export default function DashboardPage() {
     }
   };
 
-  const ConfirmationModal = ({ isOpen, onClose, onConfirm, campaignName, recipientCount, pin, setPin, isLoading }) => {
-    if (!isOpen) return null;
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 backdrop-blur-sm">
-        <div className="bg-gray-900 border border-lime-400/50 rounded-2xl shadow-lg p-8 m-4 max-w-lg w-full">
-        <h2 className="text-2xl font-bold text-lime-400 mb-4">ยืนยันการส่งแคมเปญ</h2>
-          <div className="text-gray-300 space-y-4 mb-6">
-            <p><strong>ชื่อแคมเปญ:</strong> {campaignName}</p>
-            <p><strong>จำนวนผู้รับ:</strong> {recipientCount} คน</p>
-          </div>
-          <div className="mb-6">
-            <label htmlFor="pin" className="block text-sm font-medium text-gray-400 mb-2">กรุณากรอก PIN เพื่อยืนยัน</label>
-            <input type="password" id="pin" value={pin} onChange={(e) => setPin(e.target.value)} className="w-full p-3 bg-black border-2 border-gray-700 rounded-lg focus:ring-2 focus:ring-lime-400 focus:border-lime-400 focus:outline-none" autoComplete="off" required />
-          </div>
-          <div className="flex justify-end gap-4">
-            <button onClick={onClose} className="px-6 py-2 rounded-lg text-gray-300 hover:bg-gray-700 transition">ยกเลิก</button>
-            <button onClick={onConfirm} disabled={isLoading || !pin} className="px-6 py-2 rounded-lg bg-lime-400 text-black font-bold hover:bg-lime-300 disabled:bg-gray-600 transition">{isLoading ? 'กำลังส่ง...' : 'ยืนยันและส่ง'}</button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <>
-      <ConfirmationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirmSend} campaignName={campaignName} recipientCount={recipientsText.split('\n').map(r => r.trim()).filter(r => r).length} pin={pinInput} setPin={setPinInput} isLoading={isLoading} />
-      <div className={`min-h-screen ${current.bg} ${current.text} font-sans transition-all duration-300`}>
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-          <div className="flex flex-col items-center mb-8">
-            <h1 className="text-5xl font-extrabold tracking-wide animate-pulse mb-2" style={{letterSpacing: '0.15em', color: '#F07300'}}>AUTOSMSAPI</h1>
-            {/* ระบบเลือกสีธีม */}
-            <div className="flex items-center gap-3 mb-8 justify-center">
-              <span className="font-bold text-lg text-white">เลือกธีมสี:</span>
-              <button
-                className="rounded-full w-10 h-10 flex items-center justify-center border-2 border-white bg-gradient-to-br from-gray-900 via-gray-700 to-gray-400 shadow-lg hover:scale-110 transition"
-                onClick={() => setShowThemePicker(true)}
-                aria-label="เลือกธีมสี"
-              >
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M4.93 19.07l1.41-1.41"/><path d="M17.66 6.34l1.41-1.41"/></svg>
-              </button>
-              {showThemePicker && (
-                <div className="absolute z-50 mt-12 p-6 bg-black/95 rounded-2xl shadow-2xl border-4 border-white flex flex-col gap-4 min-w-[220px]">
-                  <span className="font-bold text-white mb-2">เลือกธีมสี</span>
-                  {Object.keys(themeMap).map(key => (
-                    <button key={key} onClick={() => { setTheme(key); setShowThemePicker(false); }} className={`w-full py-2 rounded-xl font-bold mb-1 ${themeMap[key].btn} border-2 border-white shadow hover:scale-105 transition`}>
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </button>
-                  ))}
-                  <button onClick={() => { const keys = Object.keys(themeMap); setTheme(keys[Math.floor(Math.random()*keys.length)]); setShowThemePicker(false); }} className="w-full py-2 rounded-xl font-bold bg-gradient-to-r from-pink-500 via-yellow-400 to-green-400 text-black border-2 border-white shadow hover:scale-105 transition">สุ่มสี</button>
-                  <button onClick={() => setShowThemePicker(false)} className="w-full py-2 rounded-xl font-bold bg-gray-700 text-white border-2 border-white shadow hover:scale-105 transition">ปิด</button>
-                </div>
-              )}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmSend}
+        campaignName={campaignName}
+        recipientCount={recipientsText.split('\n').map(r => r.trim()).filter(r => r).length}
+        pin={pinInput}
+        setPin={setPinInput}
+        isLoading={isLoading}
+        theme="professional"
+      />
+      <div className={`min-h-screen ${current.bg} ${current.text} font-sans transition-all duration-300 flex flex-col md:flex-row`}> 
+        {/* Sidebar */}
+        <aside className="w-full md:w-64 bg-white/90 border-r border-[var(--color-border)] shadow-xl flex md:flex-col flex-row md:h-screen z-10 sticky top-0 md:top-0">
+          <div className="flex flex-col w-full gap-6 md:gap-8 p-4 md:py-8">
+            <UserInfo profile={profile} currentTheme="professional" />
+            <WalletInfo profile={profile} currentTheme="professional" />
+            <div className="flex flex-row md:flex-col w-full justify-center md:justify-start items-center gap-4 md:gap-8 mt-4">
+              <button onClick={() => setActiveTab('create')} className={`w-full md:w-auto px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'create' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>สร้างแคมเปญใหม่</button>
+              <button onClick={() => setActiveTab('history')} className={`w-full md:w-auto px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'history' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>ประวัติแคมเปญ</button>
+              <button onClick={() => setActiveTab('contact')} className={`w-full md:w-auto px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'contact' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>ติดต่อเรา</button>
             </div>
           </div>
-          {/* ส่วนแสดงเครดิตตรงกลางก่อน card ฟอร์ม */}
-          <div className="flex justify-center mb-8">
-            <Link href="/dashboard/credit" className={`p-4 rounded-xl flex items-center gap-3 border-2 shadow-lg transition-all font-bold ${current.card} hover:border-lime-400`} style={{minWidth: 320, justifyContent: 'center'}}>
-              <WalletIcon />
-              <div>
-                <div className={`text-xs ${current.label}`}>Credit คงเหลือ</div>
-                <div className={`text-lg font-bold ${current.count}`}>{credit !== null ? credit.toLocaleString() : '...'}</div>
-              </div>
-            </Link>
+        </aside>
+        {/* Main Content */}
+        <main className="flex-1 min-h-screen bg-[var(--color-bg-main)] p-4 sm:p-8 lg:p-12">
+          <div className="flex flex-col items-center mb-10">
+            <h1 className="text-6xl font-extrabold tracking-wide animate-pulse mb-4 drop-shadow-lg" style={{letterSpacing: '0.18em', color: '#F07300'}}>AUTOSMSAPI</h1>
           </div>
-          {/* Tab Navigation */}
-          <div className="flex gap-4 mb-8 justify-center">
-            <button onClick={() => setActiveTab('create')} className={`px-6 py-2 rounded-xl font-bold border-2 shadow transition-all text-lg ${activeTab === 'create' ? `${current.btn} border-lime-400` : `${current.card} ${current.text} border-transparent hover:border-lime-400 hover:bg-opacity-80`}`}>สร้างแคมเปญใหม่</button>
-            <button onClick={() => setActiveTab('history')} className={`px-6 py-2 rounded-xl font-bold border-2 shadow transition-all text-lg ${activeTab === 'history' ? `${current.btn} border-lime-400` : `${current.card} ${current.text} border-transparent hover:border-lime-400 hover:bg-opacity-80`}`}>ประวัติแคมเปญ</button>
-            <button onClick={() => setActiveTab('contact')} className={`px-6 py-2 rounded-xl font-bold border-2 shadow transition-all text-lg ${activeTab === 'contact' ? `${current.btn} border-orange-400` : `${current.card} ${current.text} border-transparent hover:border-orange-400 hover:bg-opacity-80`}`}>ติดต่อเรา</button>
-          </div>
-
-          {alert.message && (<div className={`p-4 mb-6 rounded-xl font-semibold border-2 shadow ${alert.type === 'success' ? 'bg-green-900/50 text-green-300 border-green-700' : 'bg-red-900/50 text-red-300 border-red-700'}`}>{alert.message}</div>)}
-
+          {alert.message && (<div className={`p-5 mb-8 rounded-2xl font-semibold border-2 shadow-xl text-center ${alert.type === 'success' ? `bg-green-900/60 text-green-300 border-green-700` : `bg-red-900/60 text-red-300 border-red-700`} animate-pulse`}>{alert.message}</div>)}
           {/* Tab Content */}
           {activeTab === 'create' && (
-            <CampaignForm
-              senderNames={senderNames}
-              lockedUrl={lockedUrl}
-              onSubmit={handleSubmitCampaign}
-              isLoading={isLoading}
-              theme={theme}
-            />
-          )}
-
-          {activeTab === 'history' && (
-            <CampaignHistory campaigns={campaigns} onDelete={handleDelete} onRefresh={fetchInitialData} />
-          )}
-          {/* ส่วนติดต่อเรา */}
-          {activeTab === 'contact' && (
-            <div className={`max-w-xl mx-auto rounded-2xl shadow-2xl p-10 border-4 border-blue-900 bg-black/95 text-center mt-8`}>
-              <h2 className="text-2xl font-bold mb-4 text-blue-300">ติดต่อเรา</h2>
-              <p className="mb-6 text-gray-200">สอบถาม/แจ้งปัญหา ติดต่อผ่าน Telegram</p>
-              <a href="https://t.me/jxzem1223" target="_blank" rel="noopener noreferrer" className="inline-block px-6 py-3 rounded-xl bg-blue-500 text-white font-bold text-lg shadow hover:bg-blue-600 transition">ติดต่อผ่าน Telegram</a>
+            <div className="max-w-2xl mx-auto w-full">
+              <StatsBar recipientsText={recipientsText} messageText={messageText} />
+              <CampaignForm
+                campaignName={campaignName}
+                recipientsText={recipientsText}
+                messageText={messageText}
+                selectedSender={selectedSender}
+                customUrl={customUrl}
+                senderNames={senderNames}
+                lockedUrl={lockedUrl}
+                onChange={handleFormChange}
+                onSubmit={handleFormSubmit}
+                isLoading={isLoading}
+                theme="professional"
+                error={formError}
+              />
             </div>
           )}
-        </div>
+          {activeTab === 'history' && (
+            <div className="max-w-3xl mx-auto w-full">
+              <CampaignHistory campaigns={campaigns} onDelete={handleDelete} onRefresh={fetchInitialData} theme="professional" />
+            </div>
+          )}
+          {activeTab === 'contact' && (
+            <div className={`max-w-xl mx-auto rounded-2xl shadow-2xl p-12 border-4 border-blue-900 bg-black/95 text-center mt-12 animate-fade-in`}>
+              <h2 className="text-3xl font-bold mb-6 text-blue-300 drop-shadow">ติดต่อเรา</h2>
+              <div className="text-lg text-white">Line: <a href="https://t.me/jxzem1223" className="text-lime-400 hover:underline">@69</a></div>
+            </div>
+          )}
+        </main>
       </div>
     </>
   );

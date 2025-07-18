@@ -161,70 +161,80 @@ export default function CampaignDetailPage() {
     return 'bg-gray-800/50 border-gray-600/80';
   };
 
-  if (isLoading) return <div className="min-h-screen bg-black flex items-center justify-center text-lime-400">Loading Campaign Data...</div>;
-  if (!campaign) return <div className="min-h-screen bg-black flex items-center justify-center text-red-400">ไม่พบข้อมูลแคมเปญ</div>;
+  if (isLoading) return <div className="min-h-screen bg-[var(--color-bg-main)] flex items-center justify-center text-[var(--color-primary)] font-bold animate-pulse">Loading Campaign Data...</div>;
+  if (!campaign) return <div className="min-h-screen bg-[var(--color-bg-main)] flex items-center justify-center text-[var(--color-error)] font-bold">ไม่พบข้อมูลแคมเปญ</div>;
 
   return (
     <>
       <ClickDetailModal isOpen={!!selectedMessage} onClose={() => setSelectedMessage(null)} message={selectedMessage} translateStatus={translateStatus} />
-      <div className="min-h-screen bg-black text-gray-200 font-sans">
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="min-h-screen bg-[var(--color-bg-main)] text-[var(--color-text-main)] font-sans">
+        <div className="container mx-auto p-4 sm:p-8 lg:p-12">
           <header className="mb-8">
-            <Link href="/dashboard" className="text-blue-400 hover:underline mb-4 block">&larr; กลับไปหน้าแคมเปญทั้งหมด</Link>
-            <h1 className="text-3xl md:text-4xl font-bold text-lime-400">{campaign.name}</h1>
-            <p className="text-gray-400 mt-2">ข้อความ: {campaign.message_template}</p>
+            <Link href="/dashboard" className="text-[var(--color-primary)] hover:underline mb-4 block font-semibold transition-colors">&larr; กลับไปหน้าแคมเปญทั้งหมด</Link>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-[var(--color-primary)] drop-shadow mb-2">{campaign.name}</h1>
+            <p className="text-[var(--color-text-secondary)] mt-2">ข้อความ: {campaign.message_template}</p>
           </header>
 
-          <div className="bg-gray-900/50 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-lime-400/30 mb-8">
-            <h2 className="text-2xl font-bold text-lime-400 mb-6">ภาพรวมการส่งข้อความ</h2>
+          <div className="card mb-8">
+            <h2 className="text-2xl font-bold text-[var(--color-primary)] mb-6">ภาพรวมการส่งข้อความ</h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1 flex flex-col items-center justify-center gap-6 p-4 bg-gray-800/50 rounded-lg">
-                <h3 className="font-semibold text-center">เปอร์เซ็นต์สำเร็จ</h3>
+              <div className="lg:col-span-1 flex flex-col items-center justify-center gap-6 p-4 bg-[var(--color-bg-card-alt)] rounded-xl border border-[var(--color-border)] shadow-sm">
+                <h3 className="font-semibold text-center text-[var(--color-primary)]">เปอร์เซ็นต์สำเร็จ</h3>
                 <RadialProgressBar percentage={summaryStats.percentage} />
                 <div className="w-full">
-                  <h4 className="font-semibold text-center mb-2">รายละเอียดการส่ง (ไม่สำเร็จ)</h4>
+                  <h4 className="font-semibold text-center mb-2 text-[var(--color-primary)]">รายละเอียดการส่ง (ไม่สำเร็จ)</h4>
                   <div className="space-y-1 text-sm">
-                    {Object.entries(summaryStats.failedBreakdown).map(([code, count]) => (<div key={code} className="flex justify-between items-center"><span className="flex items-center"><span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span>{translateStatus(parseInt(code))}</span><span className="font-bold">{count}</span></div>))}
-                    {Object.keys(summaryStats.failedBreakdown).length === 0 && <p className="text-center text-gray-500">ไม่มีรายการที่ส่งไม่สำเร็จ</p>}
+                    {Object.entries(summaryStats.failedBreakdown).map(([code, count]) => (
+                      <div key={code} className="flex justify-between items-center">
+                        <span className="flex items-center"><span className="w-2 h-2 rounded-full bg-[var(--color-error)] mr-2"></span>{translateStatus(parseInt(code))}</span>
+                        <span className="font-bold">{count}</span>
+                      </div>
+                    ))}
+                    {Object.keys(summaryStats.failedBreakdown).length === 0 && <p className="text-center text-[var(--color-text-secondary)]">ไม่มีรายการที่ส่งไม่สำเร็จ</p>}
                   </div>
                 </div>
               </div>
               <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2 p-6 rounded-lg bg-gray-800/70 flex flex-col items-center justify-center"><div className="text-gray-400">จำนวนเครดิตที่ใช้ทั้งหมด</div><div className="text-5xl font-bold text-white my-2">{summaryStats.credits.toFixed(2)}</div></div>
-                <SummaryCard title="ผู้รับทั้งหมด" value={summaryStats.total} icon="👥" colorClass="border-blue-400/50" />
-                <SummaryCard title="รอรับ DR ทั้งหมด" value={summaryStats.waiting} icon="⏳" colorClass="border-yellow-400/50" />
-                <SummaryCard title="ส่งสำเร็จทั้งหมด" value={summaryStats.success} icon="✅" colorClass="border-green-400/50" />
-                <SummaryCard title="ส่งไม่สำเร็จทั้งหมด" value={summaryStats.failed} icon="❌" colorClass="border-red-400/50" />
+                <div className="sm:col-span-2 p-6 rounded-lg bg-[var(--color-bg-card-alt)] flex flex-col items-center justify-center border border-[var(--color-border)] shadow-sm">
+                  <div className="text-[var(--color-text-secondary)]">จำนวนเครดิตที่ใช้ทั้งหมด</div>
+                  <div className="text-5xl font-bold text-[var(--color-primary)] my-2">{summaryStats.credits.toFixed(2)}</div>
+                </div>
+                <SummaryCard title="ผู้รับทั้งหมด" value={summaryStats.total} icon="👥" colorClass="border-[var(--color-primary)]" />
+                <SummaryCard title="รอรับ DR ทั้งหมด" value={summaryStats.waiting} icon="⏳" colorClass="border-[var(--color-warning)]" />
+                <SummaryCard title="ส่งสำเร็จทั้งหมด" value={summaryStats.success} icon="✅" colorClass="border-[var(--color-success)]" />
+                <SummaryCard title="ส่งไม่สำเร็จทั้งหมด" value={summaryStats.failed} icon="❌" colorClass="border-[var(--color-error)]" />
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-900/50 backdrop-blur-xl p-6 rounded-2xl shadow-lg border border-lime-400/30">
+          <div className="card">
             <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
-              <h2 className="text-2xl font-bold text-lime-400">สถานะการส่งรายบุคคล</h2>
-              <button onClick={handleUpdateStatus} disabled={isUpdating} className="flex items-center gap-2 text-lime-400 font-semibold hover:text-lime-300 transition disabled:text-gray-500"><RefreshIcon className={isUpdating ? 'animate-spin' : ''} />{isUpdating ? 'กำลังอัปเดต...' : 'อัปเดตสถานะ'}</button>
+              <h2 className="text-2xl font-bold text-[var(--color-primary)]">สถานะการส่งรายบุคคล</h2>
+              <button onClick={handleUpdateStatus} disabled={isUpdating} className="button-main flex items-center gap-2 font-semibold transition disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed">
+                <RefreshIcon className={isUpdating ? 'animate-spin' : ''} />{isUpdating ? 'กำลังอัปเดต...' : 'อัปเดตสถานะ'}
+              </button>
             </div>
             <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <button onClick={() => setFilterStatus('all')} className={`px-4 py-1.5 text-sm font-semibold rounded-full transition ${filterStatus === 'all' ? 'bg-lime-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>ทั้งหมด ({summaryStats.total})</button>
-              <button onClick={() => setFilterStatus(0)} className={`px-4 py-1.5 text-sm font-semibold rounded-full transition ${filterStatus === 0 ? 'bg-green-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>สำเร็จ ({summaryStats.success})</button>
-              <button onClick={() => setFilterStatus('failed')} className={`px-4 py-1.5 text-sm font-semibold rounded-full transition ${filterStatus === 'failed' ? 'bg-red-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>ไม่สำเร็จ ({summaryStats.failed})</button>
-              <button onClick={() => setFilterStatus('waiting')} className={`px-4 py-1.5 text-sm font-semibold rounded-full transition ${filterStatus === 'waiting' ? 'bg-yellow-500 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}>รอการตอบกลับ ({summaryStats.waiting})</button>
+              <button onClick={() => setFilterStatus('all')} className={`button-secondary text-sm font-semibold rounded-full px-4 py-1.5 transition ${filterStatus === 'all' ? '!bg-[var(--color-primary)] !text-white' : ''}`}>ทั้งหมด ({summaryStats.total})</button>
+              <button onClick={() => setFilterStatus(0)} className={`button-secondary text-sm font-semibold rounded-full px-4 py-1.5 transition ${filterStatus === 0 ? '!bg-[var(--color-success)] !text-white' : ''}`}>สำเร็จ ({summaryStats.success})</button>
+              <button onClick={() => setFilterStatus('failed')} className={`button-secondary text-sm font-semibold rounded-full px-4 py-1.5 transition ${filterStatus === 'failed' ? '!bg-[var(--color-error)] !text-white' : ''}`}>ไม่สำเร็จ ({summaryStats.failed})</button>
+              <button onClick={() => setFilterStatus('waiting')} className={`button-secondary text-sm font-semibold rounded-full px-4 py-1.5 transition ${filterStatus === 'waiting' ? '!bg-[var(--color-warning)] !text-black' : ''}`}>รอการตอบกลับ ({summaryStats.waiting})</button>
             </div>
             <div className="space-y-2">
               {filteredMessages.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50">
-                  <div className={`flex items-center gap-4 p-2 rounded-md border flex-grow ${getStatusColorClass(item.status_code)}`}> 
+                <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--color-bg-card-alt)] border border-[var(--color-border)] shadow-sm transition-all hover:shadow-lg">
+                  <div className={`flex items-center gap-4 p-2 rounded-md border flex-grow ${getStatusColorClass(item.status_code)}`}>
                     <span className="font-bold text-sm min-w-[120px] text-center">{translateStatus(item.status_code)}</span>
-                    <span className="border-l-2 border-gray-600 pl-4 font-mono text-base text-white">{item.recipient}</span>
+                    <span className="border-l-2 border-[var(--color-border)] pl-4 font-mono text-base text-[var(--color-text-main)]">{item.recipient}</span>
                   </div>
                   <div className="flex flex-col items-center w-24 gap-2">
-                    <button onClick={() => setSelectedMessage(item)} className="text-blue-400 hover:text-blue-300 flex items-center justify-center w-full gap-1 text-xs border border-blue-400 rounded px-2 py-1" title="ดูรายละเอียดการส่ง">ดูรายละเอียด</button>
+                    <button onClick={() => setSelectedMessage(item)} className="text-[var(--color-primary)] hover:text-white hover:bg-[var(--color-primary)] flex items-center justify-center w-full gap-1 text-xs border border-[var(--color-primary)] rounded px-2 py-1 transition" title="ดูรายละเอียดการส่ง">ดูรายละเอียด</button>
                     {item.link_clicked ? (
-                      <button onClick={() => setSelectedMessage(item)} className="text-lime-400 hover:text-lime-300 flex items-center justify-center w-full gap-1" title="ดูรายละเอียดการคลิก">
+                      <button onClick={() => setSelectedMessage(item)} className="text-[var(--color-success)] hover:text-white hover:bg-[var(--color-success)] flex items-center justify-center w-full gap-1 text-xs border border-[var(--color-success)] rounded px-2 py-1 transition" title="ดูรายละเอียดการคลิก">
                         ✔️ <InfoIcon />
                       </button>
                     ) : (
-                      <span className="text-gray-600">➖</span>
+                      <span className="text-gray-400">➖</span>
                     )}
                   </div>
                 </div>

@@ -5,8 +5,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="th">
+      <body className="bg-[var(--color-bg-main)] text-[var(--color-text-main)] font-sans">{children}</body>
     </html>
-  )
+  );
 }

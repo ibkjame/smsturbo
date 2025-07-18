@@ -33,31 +33,26 @@ export default function CreditPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-gray-200 font-sans">
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-[var(--color-bg-main)] text-[var(--color-text-main)] font-sans">
+      <div className="container mx-auto p-4 sm:p-8 lg:p-12">
         <header className="mb-8">
-          <Link href="/dashboard" className="text-blue-400 hover:underline mb-4 block">&larr; กลับไปหน้าแดชบอร์ด</Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-lime-400">ตรวจสอบเครดิต</h1>
+          <Link href="/dashboard" className="text-[var(--color-primary)] hover:underline mb-4 block font-semibold transition-colors">&larr; กลับไปหน้าแดชบอร์ด</Link>
+          <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-primary)]">ตรวจสอบเครดิต</h1>
         </header>
-
         <div className="flex justify-center items-center">
-          <div className="bg-gray-900/50 backdrop-blur-xl p-8 rounded-2xl shadow-lg border border-lime-400/30 w-full max-w-md text-center">
-            <h2 className="text-lg text-gray-400 mb-2">เครดิตคงเหลือ</h2>
-            
-            {isLoading && <div className="text-5xl font-bold text-white my-4">Loading...</div>}
-            
-            {error && <div className="text-2xl font-semibold text-red-400 my-4">{error}</div>}
-            
+          <div className="card w-full max-w-md text-center">
+            <h2 className="text-lg text-[var(--color-text-secondary)] mb-2">เครดิตคงเหลือ</h2>
+            {isLoading && <div className="text-5xl font-bold text-[var(--color-primary)] my-4 animate-pulse">Loading...</div>}
+            {error && <div className="alert-success bg-[var(--color-error)] text-white my-4">{error}</div>}
             {!isLoading && !error && (
-              <div className="text-7xl font-bold text-white my-4">
+              <div className="text-7xl font-bold text-[var(--color-primary)] my-4">
                 {credit !== null ? credit.toLocaleString() : 'N/A'}
               </div>
             )}
-
             <button 
               onClick={fetchCredit} 
               disabled={isLoading}
-              className="mt-6 inline-flex items-center gap-2 bg-lime-400 text-black font-bold px-6 py-2 rounded-lg hover:bg-lime-300 disabled:bg-gray-600 transition-all transform hover:scale-105"
+              className="button-main mt-6 inline-flex items-center gap-2 disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed"
             >
               <RefreshIcon className={isLoading ? 'animate-spin' : ''} />
               รีเฟรช
