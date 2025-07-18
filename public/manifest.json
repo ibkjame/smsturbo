@@ -1,7 +1,7 @@
 {
-  "name": "SMS Campaign Dashboard",
-  "short_name": "SMS Dashboard",
-  "description": "ระบบจัดการแคมเปญ SMS ส่งข้อความ ตรวจสอบสถานะ และเลือกธีมสีได้อย่างง่ายดาย รองรับมือถือ",
+  "name": "AUTO SMS",
+  "short_name": "SMSLNW",
+  "description": "ระบบส่งSMSครบวงจร เต็มรูปแบบ",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
