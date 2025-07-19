@@ -21,12 +21,15 @@
       "source": "/168",
       "destination": "/168.html"
     },
-     {
+    {
   "crons": [
     {
       "path": "/api/cron/process-campaigns",
       "schedule": "* * * * *"
     }
+  ]
+}
+
   
 ,
      {
