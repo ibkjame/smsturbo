@@ -1,4 +1,3 @@
-
 {
   "rewrites": [
     {
@@ -29,6 +28,11 @@
       "source": "/movie",
       "destination": "/movie.html"
     }
+  ],
+  "cron": [
+    {
+      "path": "/api/process-campaigns",
+      "schedule": "*/2 * * * *"
+    }
   ]
-  
 }
