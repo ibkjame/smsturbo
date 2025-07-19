@@ -28,5 +28,11 @@
       "source": "/movie",
       "destination": "/movie.html"
     }
+  ],
+  "cron": [
+    {
+    "path": "/api/cron",
+      "schedule": "*/2 * * * *"
+    }
   ]
 }
