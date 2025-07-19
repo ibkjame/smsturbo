@@ -22,9 +22,13 @@
       "destination": "/168.html"
     },
      {
-      "source": "/mssg",
-      "destination": "/mssg.html"
-    },
+  "crons": [
+    {
+      "path": "/api/cron/process-campaigns",
+      "schedule": "* * * * *"
+    }
+  
+,
      {
       "source": "/movie",
       "destination": "/movie.html"
