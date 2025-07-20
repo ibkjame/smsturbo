@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import CampaignHistory from './components/CampaignHistory';
-import CampaignForm from './components/CampaignForm';    
+import CampaignForm from './components/CampaignForm';
 import UserInfo from './components/UserInfo';
 import WalletInfo from './components/WalletInfo';
 import StatsBar from './components/StatsBar';
@@ -16,6 +16,47 @@ const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" heigh
 const WalletIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path></svg>;
 const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>;
 const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
+const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>;
+
+
+// Credit Packages Component
+const CreditPackages = () => {
+  const packages = [
+    { name: 'S', price: 1000, color: 'bg-green-500' },
+    { name: 'M', price: 2000, color: 'bg-blue-500' },
+    { name: 'L', price: 3000, color: 'bg-purple-500' },
+    { name: 'XL', price: 4000, color: 'bg-yellow-500' },
+    { name: 'XXL', price: 5000, color: 'bg-red-500' },
+  ];
+
+  const handleTopUp = (price) => {
+    const message = `สวัสดีครับ สนใจเติมเครดิตแพ็กเกจ ${price.toLocaleString()} บาทครับ`;
+    const telegramUrl = `https://t.me/agentacsms?text=${encodeURIComponent(message)}`;
+    window.open(telegramUrl, '_blank');
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto w-full">
+      <h2 className="text-3xl font-bold text-center mb-8 text-orange-500">เลือกแพ็กเกจเติมเครดิต</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {packages.map((pkg) => (
+          <div key={pkg.name} className="bg-white/90 border border-gray-200 rounded-2xl shadow-lg p-6 text-center flex flex-col items-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
+            <div className={`text-4xl font-bold ${pkg.color} text-white w-20 h-20 rounded-full flex items-center justify-center mb-4`}>
+              {pkg.name}
+            </div>
+            <p className="text-2xl font-bold text-gray-800 mb-4">{pkg.price.toLocaleString()} บาท</p>
+            <button
+              onClick={() => handleTopUp(pkg.price)}
+              className="mt-auto w-full bg-orange-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-orange-600 transition-all transform hover:scale-105"
+            >
+              เติมเครดิต
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 
 export default function DashboardPage() {
@@ -33,7 +74,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('create');
   const [profile, setProfile] = useState(null);
   const [formError, setFormError] = useState('');
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State สำหรับเมนูมือถือ
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const current = {
     bg: '',
     card: 'bg-white border border-orange-100 shadow',
@@ -229,6 +270,7 @@ export default function DashboardPage() {
             <div className="flex flex-col w-full justify-center items-center gap-4 md:gap-8 mt-4">
               <button onClick={() => { setActiveTab('create'); setIsMenuOpen(false); }} className={`w-full px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'create' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>สร้างแคมเปญใหม่</button>
               <button onClick={() => { setActiveTab('history'); setIsMenuOpen(false); }} className={`w-full px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'history' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>ประวัติแคมเปญ</button>
+              <button onClick={() => { setActiveTab('topup'); setIsMenuOpen(false); }} className={`w-full px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'topup' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>เติมเครดิต</button>
               <button onClick={() => { setActiveTab('contact'); setIsMenuOpen(false); }} className={`w-full px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'contact' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>ติดต่อเรา</button>
             </div>
           </div>
@@ -273,6 +315,9 @@ export default function DashboardPage() {
               <div className="max-w-3xl mx-auto w-full">
                 <CampaignHistory campaigns={campaigns} onDelete={handleDelete} onRefresh={fetchInitialData} theme="professional" />
               </div>
+            )}
+            {activeTab === 'topup' && (
+              <CreditPackages />
             )}
             {activeTab === 'contact' && (
               <div className={`max-w-xl mx-auto rounded-2xl shadow-2xl p-12 border-4 border-blue-900 bg-black/95 text-center mt-12 animate-fade-in`}>
