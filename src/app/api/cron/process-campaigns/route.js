@@ -1,79 +1,68 @@
 import { NextResponse } from 'next/server';
-// import { db } from '../../../../lib/db'; // แก้ไข path ให้ถูกต้อง
+import { supabase } from '@/lib/supabaseClient';
 
-export async function GET(request) {
-  console.log("Cron job started at:", new Date().toISOString());
+async function callIsmsApi(data) {
+    const url = 'https://portal.isms.asia/sms-api/message-sms/send';
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.ISMS_API_KEY}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        return await response.json();
+    } catch (error) {
+        return { status: 'error', system_message: error.message };
+    }
+}
 
-  // 1. ตรวจสอบความปลอดภัย
-  const authHeader = request.headers.get('authorization');
-  console.log("Checking authorization...");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    console.error("Authorization failed. Incorrect or missing CRON_SECRET.");
-    return new Response('Unauthorized', { status: 401 });
-  }
-  console.log("Authorization successful.");
+export async function GET() {
+    // 1. หาแคมเปญ pending
+    const { data: campaign, error: campaignError } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: true })
+        .limit(1)
+        .single();
 
-  try {
-    // 2. ค้นหาแคมเปญที่ยังรอดำเนินการ
-    console.log("Searching for a pending campaign in the database...");
-    
-    // --- ส่วนจำลองฐานข้อมูล (ให้นำ Comment ออกเมื่อใช้งานจริง) ---
-    /*
-    const campaign = await db.campaign.findFirst({
-      where: { status: 'pending' },
-    });
-    */
-    const campaign = null; // สมมติว่ายังหาแคมเปญไม่เจอ
-    // --- สิ้นสุดส่วนจำลอง ---
+    if (!campaign) return NextResponse.json({ done: true });
 
-    if (!campaign) {
-      console.log("No pending campaigns found. Job finished.");
-      return NextResponse.json({ success: true, message: 'No pending campaigns.' });
+    // 2. ดึง recipients ที่ยังไม่ส่ง (status_code: 'pending')
+    const { data: messages, error: msgError } = await supabase
+        .from('sms_messages')
+        .select('*')
+        .eq('campaign_id', campaign.id)
+        .eq('status_code', 'pending')
+        .limit(50);
+
+    if (!messages || messages.length === 0) {
+        // ถ้าส่งครบแล้ว อัปเดต status แคมเปญ
+        await supabase.from('campaigns').update({ status: 'done' }).eq('id', campaign.id);
+        return NextResponse.json({ done: true });
     }
 
-    console.log(`Found campaign to process: ${campaign.name} (ID: ${campaign.id})`);
-
-    // 3. ดึงรายชื่อผู้รับที่ยังไม่ได้ส่ง
-    const remainingRecipients = campaign.recipients.filter(
-      r => !campaign.processed_recipients.includes(r)
-    );
-    console.log(`Remaining recipients to send: ${remainingRecipients.length}`);
-
-    // 4. กำหนดจำนวนที่จะส่ง
-    const BATCH_SIZE = 50; 
-    const recipientsToSend = remainingRecipients.slice(0, BATCH_SIZE);
-    console.log(`Processing a batch of ${recipientsToSend.length} recipients.`);
-
-    if (recipientsToSend.length > 0) {
-      // 5. เตรียมส่ง SMS
-      console.log("Preparing to send SMS via external API...");
-      const apiToken = process.env.SMS_API_TOKEN;
-      const payload = {
-        sender: campaign.sender_name,
-        message: campaign.message_template,
-        recipients: recipientsToSend,
-      };
-
-      // await fetch('https://portal.isms.asia/sms-api/send', { ... });
-      console.log("SMS batch sent (simulated).");
-
-      // 6. อัปเดตฐานข้อมูล
-      console.log("Updating database with processed recipients...");
-      // await db.campaign.update({ ... });
-      console.log("Database updated.");
+    // 3. ส่ง SMS ทีละเบอร์
+    for (const msg of messages) {
+        const apiResult = await callIsmsApi({
+            recipient: msg.recipient,
+            sender_name: campaign.sender_name,
+            message: campaign.message_template
+        });
+        if (apiResult.status === 'success') {
+            await supabase.from('sms_messages').update({
+                sms_uuid: apiResult.data.uuid,
+                ref_no: apiResult.data.ref_no,
+                status_code: apiResult.data.status,
+                cost: apiResult.data.cost
+            }).eq('id', msg.id);
+        } else {
+            await supabase.from('sms_messages').update({ status_code: 2 }).eq('id', msg.id);
+        }
     }
 
-    // 7. ตรวจสอบว่าส่งครบหรือยัง
-    const newTotalProcessed = campaign.processed_recipients.length + recipientsToSend.length;
-    if (newTotalProcessed >= campaign.total_recipients) {
-      console.log(`Campaign ${campaign.id} is complete. Updating status to 'completed'.`);
-      // await db.campaign.update({ data: { status: 'completed' } });
-    }
-
-    return NextResponse.json({ success: true, message: `Processed batch for campaign ${campaign.id}.` });
-
-  } catch (error) {
-    console.error('Cron Job Execution Error:', error);
-    return NextResponse.json({ success: false, message: 'An error occurred during cron job execution.' }, { status: 500 });
-  }
+    return NextResponse.json({ processed: messages.length });
 }
