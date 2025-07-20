@@ -322,7 +322,7 @@ export default function DashboardPage() {
             {activeTab === 'contact' && (
               <div className={`max-w-xl mx-auto rounded-2xl shadow-2xl p-12 border-4 border-blue-900 bg-black/95 text-center mt-12 animate-fade-in`}>
                 <h2 className="text-3xl font-bold mb-6 text-blue-300 drop-shadow">ติดต่อเรา</h2>
-                <div className="text-lg text-white">Line: <a href="https://t.me/jxzem1223" className="text-lime-400 hover:underline">@69</a></div>
+                <div className="text-lg text-white">Line: <a href="https://t.me/agentacsms" className="text-lime-400 hover:underline">@69</a></div>
               </div>
             )}
           </main>
