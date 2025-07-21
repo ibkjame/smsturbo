@@ -12,7 +12,7 @@ const UserInfo = () => {
   useEffect(() => {
     // If in trial mode, show simulated credit and skip fetching real data
     if (isTrialMode) {
-      setCredit('19,999');
+      setCredit('19,999'); // ตั้งค่าเครดิตสำหรับโหมดทดลอง
       return;
     }
 
@@ -34,15 +34,31 @@ const UserInfo = () => {
 
   return (
     <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
-      {/* User Info Section */}
+      
+      {/* User Info Section (Left Side) */}
       <div className="w-1/2">
+        <h2 className="text-xl font-bold flex items-center">
+          <span>ข้อมูลผู้ใช้</span>
           {isTrialMode && (
             <span className="ml-3 bg-red-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
               โหมดทดลอง
             </span>
           )}
         </h2>
-      </div>    
+        <p className="text-gray-400">ภาพรวมบัญชีของคุณ</p>
+      </div>
+
+      {/* Credit Balance Section (Right Side) */}
+      <div className="w-1/2 text-right">
+        <p className="text-lg">เครดิตคงเหลือ</p>
+        {error ? (
+          <p className="text-2xl font-bold text-red-500">{error}</p>
+        ) : (
+          <p className="text-3xl font-bold text-green-400">{credit}</p>
+        )}
+      </div>
+      
+    </div>
   );
 };
 
