@@ -18,6 +18,8 @@ const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height
 const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
 const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>;
 
+// Check for trial mode from Environment Variable
+const isTrialMode = process.env.NEXT_PUBLIC_TRIAL_MODE === 'true';
 
 // Credit Packages Component
 const CreditPackages = () => {
@@ -70,7 +72,6 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [credit, setCredit] = useState(null);
   const [activeTab, setActiveTab] = useState('create');
   const [profile, setProfile] = useState(null);
   const [formError, setFormError] = useState('');
@@ -85,10 +86,34 @@ export default function DashboardPage() {
   };
 
   const fetchInitialData = async () => {
+    // If trial mode is active, set mock data and skip API calls
+    if (isTrialMode) {
+        setProfile({
+            first_name: 'ผู้ใช้',
+            last_name: 'ทดลอง',
+            credit_balance: '****'
+        });
+        // Fetch campaigns and senders even in trial mode for UI functionality
+        const [campaignsRes, sendersRes] = await Promise.all([
+            fetch('/api/get-campaigns'),
+            fetch('/api/get-senders'),
+        ]);
+        const campaignsData = await campaignsRes.json();
+        if (campaignsData.success) setCampaigns(campaignsData.campaigns);
+        const sendersData = await sendersRes.json();
+        if (sendersData.success && sendersData.senders.length > 0) {
+            setSenderNames(sendersData.senders);
+            setSelectedSender(sendersData.senders[0]);
+        }
+        return;
+    }
+
+    // --- This part runs only if NOT in trial mode ---
     try {
-      const [campaignsRes, sendersRes, creditRes, profileRes] = await Promise.all([
+      const [campaignsRes, sendersRes, profileRes] = await Promise.all([
         fetch('/api/get-campaigns'),
         fetch('/api/get-senders'),
+        fetch('/api/get-profile'),
       ]);
       
       const campaignsData = await campaignsRes.json();
@@ -100,6 +125,13 @@ export default function DashboardPage() {
         setSelectedSender(sendersData.senders[0]);
       }
 
+      const profileData = await profileRes.json();
+      if (profileData.success) setProfile(profileData.profile);
+
+    } catch (error) {
+      console.error("Failed to fetch initial data:", error);
+    }
+  };
 
   useEffect(() => { fetchInitialData(); }, []);
 
@@ -117,16 +149,6 @@ export default function DashboardPage() {
     e.preventDefault();
     if (!campaignName || !recipientsText || !messageText || !selectedSender) {
       setFormError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
-      return;
-    }
-    setPinInput('');
-    setIsModalOpen(true);
-  };
-
-  const handleOpenModal = (event) => {
-    event.preventDefault();
-    if (!campaignName || !recipientsText || !messageText || !selectedSender) {
-      setAlert({ message: 'กรุณากรอกข้อมูลให้ครบทุกช่อง', type: 'error' });
       return;
     }
     setPinInput('');
@@ -193,37 +215,6 @@ export default function DashboardPage() {
     }
   };
 
-  const handleSubmitCampaign = async (formData) => {
-    setIsLoading(true);
-    setAlert({ message: '', type: '' });
-    try {
-      const recipients = formData.recipientsText.split('\n').map(r => r.trim()).filter(r => r);
-      const response = await fetch('/api/send-campaign', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.campaignName,
-          recipients,
-          messageText: formData.messageText,
-          senderName: formData.selectedSender,
-          url: formData.url,
-          pin: formData.pin,
-        }),
-      });
-      const result = await response.json();
-      if (result.success) {
-        setAlert({ message: result.message, type: 'success' });
-        fetchInitialData();
-      } else {
-        setAlert({ message: result.message, type: 'error' });
-      }
-    } catch (error) {
-      setAlert({ message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ', type: 'error' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <>
       <ConfirmationModal
@@ -253,8 +244,8 @@ export default function DashboardPage() {
             </button>
           </div>
           <div className="flex flex-col gap-6 md:gap-8 p-4 md:py-8">
-            <UserInfo profile={profile} currentTheme="professional" />
-            <WalletInfo profile={profile} currentTheme="professional" />
+            <UserInfo profile={profile} isTrial={isTrialMode} />
+            <WalletInfo profile={profile} isTrial={isTrialMode} />
             <div className="flex flex-col w-full justify-center items-center gap-4 md:gap-8 mt-4">
               <button onClick={() => { setActiveTab('create'); setIsMenuOpen(false); }} className={`w-full px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'create' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>สร้างแคมเปญใหม่</button>
               <button onClick={() => { setActiveTab('history'); setIsMenuOpen(false); }} className={`w-full px-8 py-3 rounded-2xl font-bold border-2 shadow-lg transition-all text-xl ${activeTab === 'history' ? 'bg-[var(--color-primary)] text-white border-lime-400 scale-105 ring-2 ring-lime-300' : 'bg-white text-[var(--color-text-main)] border-transparent hover:border-orange-400 hover:bg-orange-50 hover:scale-105'}`}>ประวัติแคมเปญ</button>
@@ -271,7 +262,7 @@ export default function DashboardPage() {
             <button onClick={() => setIsMenuOpen(true)} className="p-2">
               <MenuIcon />
             </button>
-            <h1 className="text-xl font-bold text-Red-500 -translate-x-1/2 left-1/2 relative">SMART TOOLS</h1>
+            <h1 className="text-xl font-bold text-red-500 -translate-x-1/2 left-1/2 relative">SMART TOOLS</h1>
           </header>
 
           {/* Main Content */}
