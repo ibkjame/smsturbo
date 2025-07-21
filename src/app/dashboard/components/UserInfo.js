@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-// Check for trial mode from Environment Variable
+// ตรวจสอบโหมดทดลองจาก Environment Variable
 const isTrialMode = process.env.NEXT_PUBLIC_TRIAL_MODE === 'true';
 
 const UserInfo = () => {
@@ -10,12 +10,16 @@ const UserInfo = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // If in trial mode, show simulated credit and skip fetching real data
+    // --- จุดสำคัญอยู่ตรงนี้ ---
+    // 1. ตรวจสอบว่าเป็นโหมดทดลองหรือไม่
     if (isTrialMode) {
-      setCredit('19,999'); // ตั้งค่าเครดิตสำหรับโหมดทดลอง
-      return;
+      // 2. ถ้าใช่, ให้กำหนดค่าเครดิตจำลอง
+      setCredit('19,999'); 
+      // 3. และจบการทำงานของฟังก์ชันทันที
+      return; 
     }
 
+    // ฟังก์ชัน fetchCredit() จะถูกเรียกใช้ก็ต่อเมื่อ isTrialMode เป็น false เท่านั้น
     const fetchCredit = async () => {
       try {
         const response = await fetch('/api/get-credit');
@@ -29,6 +33,7 @@ const UserInfo = () => {
         setError('Could not load credit data');
       }
     };
+
     fetchCredit();
   }, []);
 
