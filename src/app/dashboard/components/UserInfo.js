@@ -1,65 +1,28 @@
-'use client'
+import React from 'react';
 
-import { useState, useEffect } from 'react';
+const themeMap = {
+  professional: {
+    card: 'bg-white border-blue-100 shadow-lg',
+    text: 'text-blue-900',
+    label: 'text-blue-700',
+    count: 'text-blue-800',
+  },
+  // ...existing themes...
+};
 
-// ตรวจสอบโหมดทดลองจาก Environment Variable
-const isTrialMode = process.env.NEXT_PUBLIC_TRIAL_MODE === 'true';
-
-const UserInfo = () => {
-  const [credit, setCredit] = useState('...');
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    // ตรวจสอบว่าเป็นโหมดทดลองหรือไม่
-    if (isTrialMode) {
-      // ---- จุดที่แก้ไข ----
-      // ถ้าใช่, ให้กำหนดค่าเครดิตเป็น '****'
-      setCredit('20,999'); 
-      return; // จบการทำงานทันทีเพื่อไม่ให้ดึงเครดิตจริง
-    }
-
-    // ส่วนนี้จะทำงานเมื่อ isTrialMode เป็น false เท่านั้น
-    const fetchCredit = async () => {
-      try {
-        const response = await fetch('/api/get-cr-edit');
-        const data = await response.json();
-        if (data.success) {
-          setCredit(data.credit);
-        } else {
-          setError(data.message);
-        }
-      } catch (err) {
-        setError('Could not load credit data');
-      }
-    };
-
-    fetchCredit();
-  }, []);
+const UserInfo = ({ profile, currentTheme }) => {
+  const current = themeMap[currentTheme] || themeMap['professional'];
 
   return (
-    <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
-      
-      {/* User Info Section (Left Side) */}
-      <div className="w-1/2">
-        <h2 className="text-xl font-bold flex items-center">
-          {isTrialMode && (
-            <span className="ml-3 bg-red-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
-              โหมดทดลอง
-            </span>
-          )}
-        </h2>
+    <div className={`p-3 rounded-lg flex items-center gap-3 ${current.card}`}>
+      {/* UserIcon */}
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <div>
+        <div className={`text-xs ${current.label}`}>ผู้ใช้งาน</div>
+        <div className={`text-lg font-bold ${current.count}`}>
+          {profile ? `${profile.first_name} ${profile.last_name}` : '...'}
+        </div>
       </div>
-
-      {/* Credit Balance Section (Right Side) */}
-      <div className="w-1/2 text-right">
-        <p className="text-lg">เครดิต</p>
-        {error ? (
-          <p className="text-2xl font-bold text-red-500">{error}</p>
-        ) : (
-          <p className="text-3xl font-bold text-green-400">{credit}</p>
-        )}
-      </div>
-      
     </div>
   );
 };
