@@ -14,11 +14,27 @@ const UserInfo = () => {
     if (isTrialMode) {
       // ---- จุดที่แก้ไข ----
       // ถ้าใช่, ให้กำหนดค่าเครดิตเป็น '****'
-      setCredit('20,998'); 
+      setCredit('20,999'); 
       return; // จบการทำงานทันทีเพื่อไม่ให้ดึงเครดิตจริง
     }
 
-  
+    // ส่วนนี้จะทำงานเมื่อ isTrialMode เป็น false เท่านั้น
+    const fetchCredit = async () => {
+      try {
+        const response = await fetch('/api/get-cr-edit');
+        const data = await response.json();
+        if (data.success) {
+          setCredit(data.credit);
+        } else {
+          setError(data.message);
+        }
+      } catch (err) {
+        setError('Could not load credit data');
+      }
+    };
+
+    fetchCredit();
+  }, []);
 
   return (
     <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
