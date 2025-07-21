@@ -89,8 +89,8 @@ export default function DashboardPage() {
       const [campaignsRes, sendersRes, creditRes, profileRes] = await Promise.all([
         fetch('/api/get-campaigns'),
         fetch('/api/get-senders'),
-        fetch('/api/get-credit'),
-        fetch('/api/get-profile'),
+              ## fetch('/api/get-credit'),
+              ## fetch('/api/get-profile'),
       ]);
       
       const campaignsData = await campaignsRes.json();
@@ -102,16 +102,16 @@ export default function DashboardPage() {
         setSelectedSender(sendersData.senders[0]);
       }
 
-      const creditData = await creditRes.json();
-      if (creditData.success) setCredit(creditData.credit);
+      ## const creditData = await creditRes.json();
+          ##   if (creditData.success) setCredit(creditData.credit);
 
-      const profileData = await profileRes.json();
-      if (profileData.success) setProfile(profileData.profile);
+           ##  const profileData = await profileRes.json();
+          ##   if (profileData.success) setProfile(profileData.profile);
 
-    } catch (error) {
-      console.error("Failed to fetch initial data:", error);
-    }
-  };
+        ##   } catch (error) {
+          ##   console.error("Failed to fetch initial data:", error);
+         ##  }
+      ##   };
 
   useEffect(() => { fetchInitialData(); }, []);
 
@@ -283,13 +283,13 @@ export default function DashboardPage() {
             <button onClick={() => setIsMenuOpen(true)} className="p-2">
               <MenuIcon />
             </button>
-            <h1 className="text-xl font-bold text-orange-500 -translate-x-1/2 left-1/2 relative">AUTOSMSAPI</h1>
+            <h1 className="text-xl font-bold text-Red-500 -translate-x-1/2 left-1/2 relative">SMART TOOLS</h1>
           </header>
 
           {/* Main Content */}
           <main className="flex-1 min-h-screen bg-[var(--color-bg-main)] p-4 sm:p-8 lg:p-12">
             <div className="hidden md:flex flex-col items-center mb-10">
-              <h1 className="text-6xl font-extrabold tracking-wide animate-pulse mb-4 drop-shadow-lg" style={{letterSpacing: '0.18em', color: '#F07300'}}>AUTOSMSAPI</h1>
+              <h1 className="text-6xl font-extrabold tracking-wide animate-pulse mb-4 drop-shadow-lg" style={{letterSpacing: '0.18em', color: '#F07300'}}>SMART TOOLS</h1>
             </div>
             {alert.message && (<div className={`p-5 mb-8 rounded-2xl font-semibold border-2 shadow-xl text-center ${alert.type === 'success' ? `bg-green-900/60 text-green-300 border-green-700` : `bg-red-900/60 text-red-300 border-red-700`} animate-pulse`}>{alert.message}</div>)}
             
