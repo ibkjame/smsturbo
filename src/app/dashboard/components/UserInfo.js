@@ -10,16 +10,15 @@ const UserInfo = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // --- จุดสำคัญอยู่ตรงนี้ ---
-    // 1. ตรวจสอบว่าเป็นโหมดทดลองหรือไม่
+    // ตรวจสอบว่าเป็นโหมดทดลองหรือไม่
     if (isTrialMode) {
-      // 2. ถ้าใช่, ให้กำหนดค่าเครดิตจำลอง
-      setCredit('19,999'); 
-      // 3. และจบการทำงานของฟังก์ชันทันที
-      return; 
+      // ---- จุดที่แก้ไข ----
+      // ถ้าใช่, ให้กำหนดค่าเครดิตเป็น '****'
+      setCredit('****'); 
+      return; // จบการทำงานทันทีเพื่อไม่ให้ดึงเครดิตจริง
     }
 
-    // ฟังก์ชัน fetchCredit() จะถูกเรียกใช้ก็ต่อเมื่อ isTrialMode เป็น false เท่านั้น
+    // ส่วนนี้จะทำงานเมื่อ isTrialMode เป็น false เท่านั้น
     const fetchCredit = async () => {
       try {
         const response = await fetch('/api/get-credit');
