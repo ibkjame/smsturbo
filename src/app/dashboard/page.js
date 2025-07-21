@@ -89,8 +89,6 @@ export default function DashboardPage() {
       const [campaignsRes, sendersRes, creditRes, profileRes] = await Promise.all([
         fetch('/api/get-campaigns'),
         fetch('/api/get-senders'),
-              ## fetch('/api/get-credit'),
-              ## fetch('/api/get-profile'),
       ]);
       
       const campaignsData = await campaignsRes.json();
@@ -102,16 +100,6 @@ export default function DashboardPage() {
         setSelectedSender(sendersData.senders[0]);
       }
 
-      ## const creditData = await creditRes.json();
-          ##   if (creditData.success) setCredit(creditData.credit);
-
-           ##  const profileData = await profileRes.json();
-          ##   if (profileData.success) setProfile(profileData.profile);
-
-        ##   } catch (error) {
-          ##   console.error("Failed to fetch initial data:", error);
-         ##  }
-      ##   };
 
   useEffect(() => { fetchInitialData(); }, []);
 
