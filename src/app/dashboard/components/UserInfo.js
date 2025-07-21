@@ -43,19 +43,17 @@ const UserInfo = () => {
       {/* User Info Section (Left Side) */}
       <div className="w-1/2">
         <h2 className="text-xl font-bold flex items-center">
-          <span>ข้อมูลผู้ใช้</span>
           {isTrialMode && (
             <span className="ml-3 bg-red-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
               โหมดทดลอง
             </span>
           )}
         </h2>
-        <p className="text-gray-400">ภาพรวมบัญชีของคุณ</p>
       </div>
 
       {/* Credit Balance Section (Right Side) */}
       <div className="w-1/2 text-right">
-        <p className="text-lg">เครดิตคงเหลือ</p>
+        <p className="text-lg">เครดิต</p>
         {error ? (
           <p className="text-2xl font-bold text-red-500">{error}</p>
         ) : (
