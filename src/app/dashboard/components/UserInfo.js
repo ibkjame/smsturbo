@@ -1,27 +1,54 @@
-import React from 'react';
+'use client'
 
-const themeMap = {
-  professional: {
-    card: 'bg-white border-blue-100 shadow-lg',
-    text: 'text-blue-900',
-    label: 'text-blue-700',
-    count: 'text-blue-800',
-  },
-  // ...existing themes...
-};
+import { useState, useEffect } from 'react';
 
-const UserInfo = ({ profile, currentTheme }) => {
-  const current = themeMap[currentTheme] || themeMap['professional'];
+// ตรวจสอบโหมดทดลองจาก Environment Variable
+const isTrialMode = process.env.NEXT_PUBLIC_TRIAL_MODE === 'true';
+
+const UserInfo = () => {
+  const [credit, setCredit] = useState('...');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    // ถ้าเป็นโหมดทดลอง ให้แสดงเครดิตจำลองและไม่ต้อง fetch ข้อมูลจริง
+    if (isTrialMode) {
+      setCredit('999,999');
+      return;
+    }
+
+    const fetchCredit = async () => {
+      try {
+        const response = await fetch('/api/get-credit');
+        const data = await response.json();
+        if (data.success) {
+          setCredit(data.credit);
+        } else {
+          setError(data.message);
+        }
+      } catch (err) {
+        setError('ไม่สามารถโหลดข้อมูลเครดิตได้');
+      }
+    };
+    fetchCredit();
+  }, []);
 
   return (
-    <div className={`p-3 rounded-lg flex items-center gap-3 ${current.card}`}>
-      {/* UserIcon */}
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
       <div>
-        <div className={`text-xs ${current.label}`}>ผู้ใช้งาน</div>
-        <div className={`text-lg font-bold ${current.count}`}>
-          {profile ? `${profile.first_name} ${profile.last_name}` : '...'}
-        </div>
+        <h2 className="text-xl font-bold">
+          ข้อมูลผู้ใช้
+          {/* เพิ่มข้อความกำกับโหมดทดลอง */}
+          {isTrialMode && <span className="text-yellow-400 ml-2">(โหมดทดลอง)</span>}
+        </h2>
+        <p className="text-gray-400">ภาพรวมบัญชีของคุณ</p>
+      </div>
+      <div className="text-right">
+        <p className="text-lg">เครดิตคงเหลือ</p>
+        {error ? (
+          <p className="text-2xl font-bold text-red-500">{error}</p>
+        ) : (
+          <p className="text-3xl font-bold text-green-400">{credit}</p>
+        )}
       </div>
     </div>
   );
