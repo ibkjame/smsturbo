@@ -35,10 +35,14 @@ const UserInfo = () => {
   return (
     <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
       <div>
-        <h2 className="text-xl font-bold">
-          ข้อมูลผู้ใช้
-          {/* เพิ่มข้อความกำกับโหมดทดลอง */}
-          {isTrialMode && <span className="text-yellow-400 ml-2">(โหมดทดลอง)</span>}
+        <h2 className="text-xl font-bold flex items-center">
+          <span>ข้อมูลผู้ใช้</span>
+          {/* ปรับแก้ส่วนนี้เพื่อแสดงป้ายกำกับ */}
+          {isTrialMode && (
+            <span className="ml-3 bg-red-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
+              โหมดทดลอง
+            </span>
+          )}
         </h2>
         <p className="text-gray-400">ภาพรวมบัญชีของคุณ</p>
       </div>
