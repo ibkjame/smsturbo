@@ -44,7 +44,7 @@ const UserInfo = () => {
       <div className="w-1/2">
         <h2 className="text-xl font-bold flex items-center">
           {isTrialMode && (
-            <span className="ml-3 bg-red-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
+            <span className="ml-3 bg-red-300 text-white text-md font-semibold px-2.5 py-0.5 rounded-full">
               โหมดทดลอง
             </span>
           )}
