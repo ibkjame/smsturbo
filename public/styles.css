@@ -1,0 +1,161 @@
+/*
+ * styles.css
+ * นี่คือไฟล์ CSS ที่ปรับปรุงใหม่สำหรับตารางราคาของคุณ
+ * เพื่อใช้งาน ให้บันทึกไฟล์นี้ในชื่อ "styles.css" และวางไว้ในโฟลเดอร์เดียวกับไฟล์ HTML ของคุณ
+ */
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: #f0f2f5; /* เปลี่ยนสีพื้นหลังให้ดูสบายตาขึ้น */
+    color: #333;
+}
+
+.table-wrapper {
+    background-color: #ffffff;
+    border-radius: 12px; /* เพิ่มความโค้งมน */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07); /* เพิ่มเงาให้ดูมีมิติ */
+    margin-bottom: 2rem;
+}
+
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* --- คอลัมน์หัวข้อ (แถบด้านซ้าย) --- */
+.head-col {
+    background-color: #2c3e50; /* สีน้ำเงินเข้ม-เทา ดูเป็นมืออาชีพ */
+    color: white;
+    min-width: 220px;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    text-align: left;
+    padding: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #3d4451;
+}
+
+/* --- แถวบนสุด (ชื่อแพ็คเกจและราคา) --- */
+.top-row {
+    background-color: #ffffff;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.top-row .font-semibold {
+    color: #0056b3; /* สีน้ำเงินเข้มสำหรับชื่อแพ็คเกจ */
+    font-size: 1.05rem;
+}
+
+.top-row .text-xl {
+    color: #1d2d35;
+    font-weight: 700;
+}
+
+/* --- ไฮไลท์แพ็คเกจปัจจุบัน --- */
+.current-td {
+    background-color: #d1e7fd; /* สีฟ้าอ่อน */
+    border-left: 3px solid #0d6efd;
+    border-right: 3px solid #0d6efd;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05); /* เพิ่มเงาด้านในเล็กน้อย */
+}
+
+.note-top-of-table.current {
+    background-color: #0d6efd; /* สีน้ำเงินสดใส */
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px 6px 0 0;
+    font-weight: 700;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+/* --- ปุ่มและป้ายประกาศ --- */
+.btn-gradient {
+    background-image: linear-gradient(45deg, #007bff, #00bfff); /* ไล่สีฟ้าให้สว่างขึ้น */
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+}
+
+.new-banner {
+    background-color: #dc3545; /* สีแดงสดสำหรับป้าย "New" */
+    color: white;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+    display: inline-block;
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+/* --- แถวในตาราง --- */
+tbody tr {
+    border-bottom: 1px solid #e9ecef;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+tbody tr:nth-child(even) td:not(.current-td) {
+    background-color: #f8f9fa; /* สลับสีแถวเพื่อให้อ่านง่ายขึ้น */
+}
+
+/* --- ส่วนแพ็คเกจแบบกำหนดเอง --- */
+.custom-package-section {
+    background-color: #f8f9fa;
+    border-radius: 0 0 12px 12px; /* ทำให้มุมโค้งมนเฉพาะด้านล่าง */
+    padding: 2rem;
+    margin-top: -1px; /* ทำให้ติดกับตาราง */
+}
+
+.custom-package-section h4 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.custom-package-section .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+}
+
+.custom-package-section .btn-primary.disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    opacity: 0.7;
+}
+
+.custom-package-section input {
+    border-radius: 50px;
+    padding: 0.6rem 1rem;
+}
