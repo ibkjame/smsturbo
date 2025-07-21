@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 import { spamWords } from '@/lib/spam-words';
 
+// เพิ่มตัวแปรสำหรับโหมดทดลอง
+const TRIAL_MODE = process.env.TRIAL_MODE === 'true';
+
 export async function POST(req) {
   try {
     const { name, recipients, messageText, senderName, pin } = await req.json();
@@ -17,7 +20,17 @@ export async function POST(req) {
       return NextResponse.json({ success: false, message: 'PIN ไม่ถูกต้อง' }, { status: 403 });
     }
 
-    // 1. สร้างแคมเปญหลักในตาราง 'campaigns' โดยตั้งสถานะเป็น 'pending'
+    // --- ส่วนที่เพิ่มเข้ามาสำหรับโหมดทดลอง ---
+    if (TRIAL_MODE) {
+      // ในโหมดทดลอง ให้จำลองว่าส่งสำเร็จและตอบกลับทันที
+      return NextResponse.json({ 
+        success: true, 
+        message: `(โหมดทดลอง) แคมเปญ "${name}" ถูกสร้างเรียบร้อยแล้ว` 
+      });
+    }
+
+    // --- โค้ดเดิมสำหรับการส่งจริง (จะทำงานเมื่อ TRIAL_MODE เป็น false) ---
+    // 1. สร้างแคมเปญหลักในตาราง 'campaigns'
     console.log(`Creating campaign: ${name}`);
     const { data: campaignData, error: campaignError } = await supabase
       .from('campaigns')
@@ -25,7 +38,7 @@ export async function POST(req) {
         name, 
         message_template: messageText, 
         total_recipients: recipients.length,
-        status: 'pending' // <-- สถานะเริ่มต้น
+        status: 'pending'
       }])
       .select()
       .single();
@@ -33,25 +46,24 @@ export async function POST(req) {
     if (campaignError) throw campaignError;
     const campaignId = campaignData.id;
 
-    // 2. เตรียมข้อมูลข้อความทั้งหมดสำหรับตาราง 'sms_messages'
+    // 2. เตรียมข้อมูลข้อความทั้งหมด
     console.log(`Preparing ${recipients.length} messages for campaign ID: ${campaignId}`);
     const messagesToInsert = recipients.map(recipient => ({
       campaign_id: campaignId,
       recipient,
       message: messageText,
-      sender_name: senderName, // <-- บันทึก sender_name ไปด้วยเพื่อง่ายต่อการดึงใช้
-      status: 'pending' // <-- สถานะของแต่ละข้อความ
+      sender_name: senderName,
+      status: 'pending'
     }));
 
-    // 3. บันทึกข้อความทั้งหมดลงฐานข้อมูลในครั้งเดียว
+    // 3. บันทึกข้อความทั้งหมดลงฐานข้อมูล
     const { error: messagesError } = await supabase
       .from('sms_messages')
       .insert(messagesToInsert);
 
     if (messagesError) throw messagesError;
 
-    // 4. ตอบกลับทันทีว่ารับงานแล้ว (API ทำงานเสร็จสิ้นตรงนี้)
-    console.log(`Campaign ${name} successfully queued.`);
+    // 4. ตอบกลับ
     return NextResponse.json({ 
       success: true, 
       message: `แคมเปญ "${name}" ถูกเพิ่มเข้าระบบแล้ว และจะเริ่มทยอยส่งในเบื้องหลัง` 
