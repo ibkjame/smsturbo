@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-// ตรวจสอบโหมดทดลองจาก Environment Variable
+// Check for trial mode from Environment Variable
 const isTrialMode = process.env.NEXT_PUBLIC_TRIAL_MODE === 'true';
 
 const UserInfo = () => {
@@ -10,7 +10,7 @@ const UserInfo = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // ถ้าเป็นโหมดทดลอง ให้แสดงเครดิตจำลองและไม่ต้อง fetch ข้อมูลจริง
+    // If in trial mode, show simulated credit and skip fetching real data
     if (isTrialMode) {
       setCredit('999,999');
       return;
@@ -26,7 +26,7 @@ const UserInfo = () => {
           setError(data.message);
         }
       } catch (err) {
-        setError('ไม่สามารถโหลดข้อมูลเครดิตได้');
+        setError('Could not load credit data');
       }
     };
     fetchCredit();
@@ -34,10 +34,10 @@ const UserInfo = () => {
 
   return (
     <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
-      <div>
+      {/* User Info Section */}
+      <div className="w-1/2">
         <h2 className="text-xl font-bold flex items-center">
           <span>ข้อมูลผู้ใช้</span>
-          {/* ปรับแก้ส่วนนี้เพื่อแสดงป้ายกำกับ */}
           {isTrialMode && (
             <span className="ml-3 bg-red-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">
               โหมดทดลอง
@@ -46,7 +46,9 @@ const UserInfo = () => {
         </h2>
         <p className="text-gray-400">ภาพรวมบัญชีของคุณ</p>
       </div>
-      <div className="text-right">
+
+      {/* Credit Balance Section */}
+      <div className="w-1/2 text-right">
         <p className="text-lg">เครดิตคงเหลือ</p>
         {error ? (
           <p className="text-2xl font-bold text-red-500">{error}</p>
