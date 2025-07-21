@@ -44,7 +44,7 @@ export default function SimpleLoginPage() {
         <h1 className="text-3xl font-bold text-blue-700 text-center mb-2">
           SMS Dashboard
         </h1>
-        <p className="text-center text-blue-400 mb-8">กรุณาใส่รหัสผ่านเพื่อเข้าสู่ระบบ</p>
+        <p className="text-center text-blue-400 mb-8">กรอกรหัส 123456 เพื่อเข้าส่โหมดทดลอง</p>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -58,7 +58,7 @@ export default function SimpleLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-3 bg-blue-50 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none transition text-blue-700 placeholder-blue-400"
-              placeholder="DEMOใช้รหัส "999999" "
+              placeholder="รหัสผ่าน"
             />
           </div>
 
