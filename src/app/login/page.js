@@ -58,7 +58,7 @@ export default function SimpleLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-3 bg-blue-50 border-2 border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none transition text-blue-700 placeholder-blue-400"
-              placeholder="รหัสผ่าน"
+              placeholder="DEMOใช้รหัส "999999" "
             />
           </div>
 
