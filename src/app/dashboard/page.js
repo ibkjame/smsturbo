@@ -21,44 +21,7 @@ const CreditCardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" 
 // Check for trial mode from Environment Variable
 const isTrialMode = process.env.NEXT_PUBLIC_TRIAL_MODE === 'true';
 
-// Credit Packages Component
-const CreditPackages = () => {
-  const packages = [
-    { name: 'S', price: 1000, color: 'bg-green-500' },
-    { name: 'M', price: 2000, color: 'bg-blue-500' },
-    { name: 'L', price: 3000, color: 'bg-purple-500' },
-    { name: 'XL', price: 4000, color: 'bg-yellow-500' },
-    { name: 'XXL', price: 5000, color: 'bg-red-500' },
-  ];
 
-  const handleTopUp = (price) => {
-    const message = `สวัสดีครับ สนใจเติมเครดิตแพ็กเกจ ${price.toLocaleString()} บาทครับ`;
-    const telegramUrl = `https://t.me/agentacsms?text=${encodeURIComponent(message)}`;
-    window.open(telegramUrl, '_blank');
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto w-full">
-      <h2 className="text-3xl font-bold text-center mb-8 text-orange-500">เลือกแพ็กเกจเติมเครดิต</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {packages.map((pkg) => (
-          <div key={pkg.name} className="bg-white/90 border border-gray-200 rounded-2xl shadow-lg p-6 text-center flex flex-col items-center hover:shadow-2xl hover:scale-105 transition-all duration-300">
-            <div className={`text-4xl font-bold ${pkg.color} text-white w-20 h-20 rounded-full flex items-center justify-center mb-4`}>
-              {pkg.name}
-            </div>
-            <p className="text-2xl font-bold text-gray-800 mb-4">{pkg.price.toLocaleString()} บาท</p>
-            <button
-              onClick={() => handleTopUp(pkg.price)}
-              className="mt-auto w-full bg-orange-500 text-white font-bold px-6 py-3 rounded-lg hover:bg-orange-600 transition-all transform hover:scale-105"
-            >
-              เติมเครดิต
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 
 export default function DashboardPage() {
@@ -268,7 +231,13 @@ export default function DashboardPage() {
           {/* Main Content */}
           <main className="flex-1 min-h-screen bg-[var(--color-bg-main)] p-4 sm:p-8 lg:p-12">
             <div className="hidden md:flex flex-col items-center mb-10">
-              <h1 className="text-6xl font-extrabold tracking-wide animate-pulse mb-4 drop-shadow-lg" style={{letterSpacing: '0.18em', color: '#F07300'}}>SMART TOOLS</h1>
+              {/* === LOGO ADDED HERE === */}
+              {/* Replace the src with your actual logo file path */}
+              <img 
+                src="https://www.uppic.biz/uploads/1754053972.png" 
+                alt="Smart Tools Logo"
+                className="max-w-2xl w-full h-auto rounded-lg shadow-lg"
+              />
             </div>
             {alert.message && (<div className={`p-5 mb-8 rounded-2xl font-semibold border-2 shadow-xl text-center ${alert.type === 'success' ? `bg-green-900/60 text-green-300 border-green-700` : `bg-red-900/60 text-red-300 border-red-700`} animate-pulse`}>{alert.message}</div>)}
             
